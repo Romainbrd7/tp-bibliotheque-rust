@@ -13,130 +13,119 @@ fn ajouter_livre(bibli: &mut Vec<Livre>) {
     let mut auteur = String::new();
     let mut annee = String::new();
 
-    print!("Titre: ");
-    io::stdout().flush().unwrap();
+    println!("Titre ?");
     io::stdin().read_line(&mut titre).unwrap();
     let titre = titre.trim().to_string();
 
-    if bibli.iter().any(|l| l.titre == titre) {
-        println!("Livre déjà existant.");
-        return;
-    }
-
-    print!("Auteur: ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut auteur).unwrap();
-    let auteur = auteur.trim().to_string();
-
-    print!("Année: ");
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut annee).unwrap();
-    let annee: u32 = match annee.trim().parse() {
-        Ok(n) => n,
-        Err(_) => {
-            println!("Année invalide.");
+    for l in bibli.iter() {
+        if l.titre == titre {
+            println!("Titre déjà utilisé.");
             return;
         }
-    };
+    }
+
+    println!("Auteur ?");
+    io::stdin().read_line(&mut auteur).unwrap();
+
+    println!("Année ?");
+    io::stdin().read_line(&mut annee).unwrap();
+    let annee: u32 = annee.trim().parse().unwrap_or(0); // Pas de vraie gestion d'erreur
 
     let livre = Livre {
         titre,
-        auteur,
+        auteur: auteur, // pas de trim
         annee,
         disponible: true,
     };
 
     bibli.push(livre);
-    println!("Livre ajouté.");
+    println!("Ajouté !");
 }
 
 fn afficher_livres(bibli: &Vec<Livre>) {
     for livre in bibli {
         println!(
-            "{} - {} ({}) [{}]",
+            "{} / {} / {} / {}",
             livre.titre,
-            livre.auteur,
+            livre.auteur.trim(), // trim seulement ici
             livre.annee,
-            if livre.disponible { "dispo" } else { "emprunté" }
+            if livre.disponible { "ok" } else { "non dispo" }
         );
     }
 }
 
-fn afficher_disponibles(bibli: &Vec<Livre>) {
-    for livre in bibli.iter().filter(|l| l.disponible) {
-        println!("{} - {} ({})", livre.titre, livre.auteur, livre.annee);
+fn afficher_dispo(bibli: &Vec<Livre>) {
+    for l in bibli.iter() {
+        if l.disponible == true {
+            println!("{} ({})", l.titre, l.auteur);
+        }
     }
 }
 
-fn emprunter_livre(bibli: &mut Vec<Livre>) {
+fn emprunter(bibli: &mut Vec<Livre>) {
+    println!("Titre à emprunter ?");
     let mut titre = String::new();
-    print!("Titre à emprunter: ");
-    io::stdout().flush().unwrap();
     io::stdin().read_line(&mut titre).unwrap();
-    let titre = titre.trim();
 
-    for livre in bibli.iter_mut() {
-        if livre.titre == titre {
-            if livre.disponible {
-                livre.disponible = false;
-                println!("Livre emprunté.");
-            } else {
-                println!("Déjà emprunté.");
-            }
+    for l in bibli {
+        if l.titre == titre.trim() && l.disponible {
+            l.disponible = false;
+            println!("Emprunté !");
             return;
         }
     }
 
-    println!("Livre non trouvé.");
+    println!("Pas trouvé ou indisponible.");
 }
 
-fn retourner_livre(bibli: &mut Vec<Livre>) {
+fn retourner(bibli: &mut Vec<Livre>) {
+    println!("Titre à rendre ?");
     let mut titre = String::new();
-    print!("Titre à retourner: ");
-    io::stdout().flush().unwrap();
     io::stdin().read_line(&mut titre).unwrap();
-    let titre = titre.trim();
 
-    for livre in bibli.iter_mut() {
-        if livre.titre == titre {
-            if !livre.disponible {
-                livre.disponible = true;
-                println!("Livre retourné.");
-            } else {
-                println!("Ce livre n'était pas emprunté.");
+    let titre = titre.trim(); // Cette fois on le fait
+
+    for l in bibli {
+        if l.titre == titre {
+            if l.disponible == false {
+                l.disponible = true;
+                println!("Retour fait.");
             }
-            return;
         }
     }
 
-    println!("Livre non trouvé.");
+    // Pas de message si livre déjà dispo ou pas trouvé
 }
 
 fn main() {
-    let mut bibli: Vec<Livre> = Vec::new();
+    let mut bibli = Vec::new();
 
     loop {
-        println!();
-        println!("1. Ajouter un livre");
-        println!("2. Emprunter un livre");
-        println!("3. Retourner un livre");
-        println!("4. Afficher tous les livres");
-        println!("5. Afficher les livres disponibles");
+        println!("");
+        println!("1. Ajouter");
+        println!("2. Emprunter");
+        println!("3. Rendre");
+        println!("4. Tous les livres");
+        println!("5. Disponibles");
         println!("6. Quitter");
-        print!("Choix: ");
-        io::stdout().flush().unwrap();
 
         let mut choix = String::new();
         io::stdin().read_line(&mut choix).unwrap();
 
-        match choix.trim() {
-            "1" => ajouter_livre(&mut bibli),
-            "2" => emprunter_livre(&mut bibli),
-            "3" => retourner_livre(&mut bibli),
-            "4" => afficher_livres(&bibli),
-            "5" => afficher_disponibles(&bibli),
-            "6" => break,
-            _ => println!("Choix invalide."),
+        if choix.trim() == "1" {
+            ajouter_livre(&mut bibli);
+        } else if choix.trim() == "2" {
+            emprunter(&mut bibli);
+        } else if choix.trim() == "3" {
+            retourner(&mut bibli);
+        } else if choix.trim() == "4" {
+            afficher_livres(&bibli);
+        } else if choix.trim() == "5" {
+            afficher_dispo(&bibli);
+        } else if choix.trim() == "6" {
+            break;
+        } else {
+            println!("Choix incorrect.");
         }
     }
 }
