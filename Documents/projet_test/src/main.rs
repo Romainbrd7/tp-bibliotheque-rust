@@ -1,5 +1,4 @@
 use std::io;
-use std::io::Write;
 
 struct Livre {
     titre: String,
@@ -29,11 +28,11 @@ fn ajouter_livre(bibli: &mut Vec<Livre>) {
 
     println!("Année ?");
     io::stdin().read_line(&mut annee).unwrap();
-    let annee: u32 = annee.trim().parse().unwrap_or(0); // Pas de vraie gestion d'erreur
+    let annee: u32 = annee.trim().parse().unwrap_or(0);
 
     let livre = Livre {
         titre,
-        auteur: auteur, // pas de trim
+        auteur: auteur, 
         annee,
         disponible: true,
     };
@@ -47,7 +46,7 @@ fn afficher_livres(bibli: &Vec<Livre>) {
         println!(
             "{} / {} / {} / {}",
             livre.titre,
-            livre.auteur.trim(), // trim seulement ici
+            livre.auteur.trim(), 
             livre.annee,
             if livre.disponible { "ok" } else { "non dispo" }
         );
@@ -83,7 +82,7 @@ fn retourner(bibli: &mut Vec<Livre>) {
     let mut titre = String::new();
     io::stdin().read_line(&mut titre).unwrap();
 
-    let titre = titre.trim(); // Cette fois on le fait
+    let titre = titre.trim();
 
     for l in bibli {
         if l.titre == titre {
@@ -94,7 +93,7 @@ fn retourner(bibli: &mut Vec<Livre>) {
         }
     }
 
-    // Pas de message si livre déjà dispo ou pas trouvé
+
 }
 
 fn main() {
@@ -102,11 +101,11 @@ fn main() {
 
     loop {
         println!("");
-        println!("1. Ajouter");
-        println!("2. Emprunter");
-        println!("3. Rendre");
-        println!("4. Tous les livres");
-        println!("5. Disponibles");
+        println!("1. Ajouter un livre");
+        println!("2. Emprunter un livre");
+        println!("3. Rendre un livre");
+        println!("4. Afficher tous les livres");
+        println!("5. Afficher les livres disponibles");
         println!("6. Quitter");
 
         let mut choix = String::new();
